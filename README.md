@@ -1,5 +1,5 @@
 # MMU (Music Metadata Utility)
 MMU is a utility that allows you to easily create/edit metadata for music files using a step-by-step layout.  
 
-# Planned Features
-MMU in the future will support native syncing to some mp3 player models through custom firmwares.
+<img width="1219" height="800" alt="Screen Shot 2026-09-06 at 9 53 00 PM" src="https://github.com/user-attachments/assets/0a633014-eb95-4195-a9c0-e2aa66c1f131" />
+

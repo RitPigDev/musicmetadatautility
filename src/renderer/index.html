@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: file:; img-src 'self' data: file:; media-src 'self' blob: file:; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MMU — Music Metadata Utility</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="titlebar" class="drag-region">
+      <div class="brand no-drag">
+        <span class="brand-mark" aria-hidden="true">♫</span>
+        <span>MMU</span>
+        <span class="brand-sub">Music Metadata Utility</span>
+      </div>
+      <div class="titlebar-spacer"></div>
+      <button id="createPlaylistBtn" class="playlist-title-btn no-drag" title="Create an M3U8 playlist"><span>☷</span> Create Playlist</button>
+      <button id="themeBtn" class="title-btn no-drag" title="Toggle Midnight theme" aria-label="Toggle theme">◐</button>
+      <div id="windowControls" class="no-drag">
+        <button id="minBtn" aria-label="Minimize">—</button>
+        <button id="maxBtn" aria-label="Maximize">□</button>
+        <button id="closeBtn" class="close" aria-label="Close">×</button>
+      </div>
+    </header>
+
+    <div id="mainRow">
+      <nav id="activityRail" aria-label="Wizard steps">
+        <button class="rail-btn active" data-step="0" title="Upload"><span>1</span></button>
+        <button class="rail-btn" data-step="1" title="Song identity"><span>2</span></button>
+        <button class="rail-btn" data-step="2" title="Release info"><span>3</span></button>
+        <button class="rail-btn" data-step="3" title="Credits and details"><span>4</span></button>
+        <button class="rail-btn" data-step="4" title="Artwork and custom tags"><span>5</span></button>
+        <button class="rail-btn" data-step="5" title="Review and save"><span>6</span></button>
+        <div class="rail-spacer"></div>
+        <div class="rail-note">MMU</div>
+      </nav>
+
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <div>
+            <div class="eyebrow">Metadata wizard</div>
+            <h2 id="sidebarTitle">Upload your file</h2>
+          </div>
+          <div class="step-pill" id="stepPill">1 / 6</div>
+        </div>
+
+        <div class="step-list" id="stepList">
+          <button class="step-row active" data-step="0"><span class="step-num">01</span><span><b>Upload your file</b><small>Pick the song to edit</small></span></button>
+          <button class="step-row locked" data-step="1"><span class="step-num">02</span><span><b>Song identity</b><small>Title, artist, album</small></span></button>
+          <button class="step-row locked" data-step="2"><span class="step-num">03</span><span><b>Release info</b><small>Track, disc, date, genre</small></span></button>
+          <button class="step-row locked" data-step="3"><span class="step-num">04</span><span><b>Credits & details</b><small>Credits, IDs, lyrics</small></span></button>
+          <button class="step-row locked" data-step="4"><span class="step-num">05</span><span><b>Artwork & advanced</b><small>Cover and custom tags</small></span></button>
+          <button class="step-row locked" data-step="5"><span class="step-num">06</span><span><b>Review & save</b><small>Write a copy or replace</small></span></button>
+        </div>
+
+        <div class="current-file-card" id="currentFileCard">
+          <div class="file-icon">♪</div>
+          <div class="file-copy">
+            <span class="muted">No file loaded</span>
+            <b id="sideFileName">Upload a song to begin</b>
+            <small id="sideFileMeta">MP3, M4A/MP4, FLAC, OGG, OPUS or WAV</small>
+          </div>
+        </div>
+      </aside>
+
+      <main id="workspace">
+        <div class="workspace-scroll">
+          <section class="step-view active" data-view="0">
+            <div class="page-heading">
+              <span class="kicker">1</span>
+              <h1>Upload your file</h1>
+              <p>Select the song you wish to edit.</p>
+            </div>
+
+            <button id="dropZone" class="drop-zone">
+              <div class="upload-orb">♫</div>
+              <h3>Choose a music file</h3>
+              <p>Click here to browse files. You can also drag a file into the window.</p>
+              <span class="format-badges"><i>MP3</i><i>M4A</i><i>FLAC</i><i>OGG</i><i>OPUS</i><i>WAV</i></span>
+            </button>
+
+            <div class="loaded-summary hidden" id="loadedSummary">
+              <div class="summary-top">
+                <div>
+                  <span class="kicker">READY</span>
+                  <h3 id="loadedName">song.mp3</h3>
+                </div>
+                <button id="changeFileBtn" class="btn secondary">Choose another</button>
+              </div>
+              <div class="tech-grid">
+                <div><span>Format</span><b id="techFormat">—</b></div>
+                <div><span>Codec</span><b id="techCodec">—</b></div>
+                <div><span>Duration</span><b id="techDuration">—</b></div>
+                <div><span>Bitrate</span><b id="techBitrate">—</b></div>
+                <div><span>Sample rate</span><b id="techSampleRate">—</b></div>
+                <div><span>Channels</span><b id="techChannels">—</b></div>
+              </div>
+              <div class="notice success"><span>✓</span><div><b>Existing tags loaded</b><small>You can change only what you want. Unknown tags are carried into the Advanced list.</small></div></div>
+            </div>
+          </section>
+
+          <section class="step-view" data-view="1">
+            <div class="page-heading">
+              <span class="kicker">2</span>
+              <h1>Song identity</h1>
+              <p>Configure details about your song.</p>
+            </div>
+            <div class="form-card">
+              <div class="field full"><label for="title">Title</label><input id="title" autocomplete="off" placeholder="Song title" /></div>
+              <div class="field full"><label for="artist">Artist</label><input id="artist" autocomplete="off" placeholder="Primary artist" /></div>
+              <div class="switch-row">
+                <div><b>Standalone / no album</b><small>Leave this on when the song should not belong to an album.</small></div>
+                <label class="switch"><input type="checkbox" id="noAlbum"><span></span></label>
+              </div>
+              <div class="grid-2 album-fields">
+                <div class="field"><label for="album">Album</label><input id="album" autocomplete="off" placeholder="Album or EP name" /></div>
+                <div class="field"><label for="albumArtist">Album artist</label><input id="albumArtist" autocomplete="off" placeholder="Useful for compilations" /></div>
+              </div>
+              <div class="field full"><label for="grouping">Content group</label><input id="grouping" autocomplete="off" placeholder="Optional movement, set, or grouping" /></div>
+            </div>
+          </section>
+
+          <section class="step-view" data-view="2">
+            <div class="page-heading">
+              <span class="kicker">3</span>
+              <h1>Release info</h1>
+              <p>Add where the song sits in a release.</p>
+            </div>
+            <div class="form-card">
+              <div class="grid-2">
+                <div class="field"><label for="genre">Genre</label><input id="genre" autocomplete="off" placeholder="e.g. Alternative" /></div>
+                <div class="field"><label for="date">Release date / year</label><input id="date" autocomplete="off" placeholder="2026 or 2026-08-30" /></div>
+              </div>
+              <div class="grid-2 fraction-grid">
+                <div class="field-group"><label>Track</label><div class="fraction"><input id="trackNumber" inputmode="numeric" placeholder="1"><span>of</span><input id="trackTotal" inputmode="numeric" placeholder="12"></div></div>
+                <div class="field-group"><label>Disc</label><div class="fraction"><input id="discNumber" inputmode="numeric" placeholder="1"><span>of</span><input id="discTotal" inputmode="numeric" placeholder="2"></div></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label for="bpm">BPM</label><input id="bpm" inputmode="numeric" placeholder="120" /></div>
+                <div class="field"><label for="language">Language</label><input id="language" autocomplete="off" placeholder="eng, spa, jpn…" /></div>
+              </div>
+              <div class="switch-row">
+                <div><b>Part of a compilation</b><small>Sets the compilation flag when supported by the file format.</small></div>
+                <label class="switch"><input type="checkbox" id="compilation"><span></span></label>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-view" data-view="3">
+            <div class="page-heading">
+              <span class="kicker">4</span>
+              <h1>Credits & details</h1>
+              <p>Add credit/copyright information about your song.</p>
+            </div>
+            <div class="form-card">
+              <div class="grid-2">
+                <div class="field"><label for="composer">Composer</label><input id="composer" autocomplete="off" /></div>
+                <div class="field"><label for="lyricist">Lyricist</label><input id="lyricist" autocomplete="off" /></div>
+                <div class="field"><label for="conductor">Conductor</label><input id="conductor" autocomplete="off" /></div>
+                <div class="field"><label for="publisher">Publisher / label</label><input id="publisher" autocomplete="off" /></div>
+                <div class="field"><label for="copyright">Copyright</label><input id="copyright" autocomplete="off" placeholder="© 2026 …" /></div>
+                <div class="field"><label for="isrc">ISRC</label><input id="isrc" autocomplete="off" placeholder="US-ABC-26-12345" /></div>
+                <div class="field"><label for="encodedBy">Encoded by</label><input id="encodedBy" autocomplete="off" /></div>
+                <div class="field"><label for="encoder">Encoder</label><input id="encoder" autocomplete="off" /></div>
+              </div>
+              <div class="field full"><label for="comment">Comment / description</label><textarea id="comment" rows="3" placeholder="Optional notes about this recording"></textarea></div>
+              <div class="field full"><label for="lyrics">Unsynced lyrics</label><textarea id="lyrics" rows="8" placeholder="Paste lyrics here if you want them embedded in the file"></textarea></div>
+              <details class="details-box">
+                <summary>Sort fields</summary>
+                <div class="grid-3 details-content">
+                  <div class="field"><label for="titleSort">Sort title</label><input id="titleSort" /></div>
+                  <div class="field"><label for="artistSort">Sort artist</label><input id="artistSort" /></div>
+                  <div class="field"><label for="albumSort">Sort album</label><input id="albumSort" /></div>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <section class="step-view" data-view="4">
+            <div class="page-heading">
+              <span class="kicker">5</span>
+              <h1>Artwork & advanced tags</h1>
+              <p>Configure the embedded artwork in your song & configure embedded tags.</p>
+            </div>
+            <div class="artwork-layout">
+              <div class="cover-card">
+                <div class="cover-preview" id="coverPreview"><span>♫</span></div>
+                <div class="cover-actions">
+                  <button id="keepCoverBtn" class="choice-btn active" data-cover-action="keep">Keep current</button>
+                  <button id="replaceCoverBtn" class="choice-btn" data-cover-action="replace">Replace…</button>
+                  <button id="removeCoverBtn" class="choice-btn danger-text" data-cover-action="remove">Remove</button>
+                </div>
+                <small id="coverSupportNote" class="muted">Artwork support is checked after you load a file.</small>
+              </div>
+              <div class="custom-card">
+                <div class="section-title-row"><div><h3>Custom metadata</h3><p>Any unknown existing tags appear here automatically.</p></div><button id="addTagBtn" class="btn secondary small">+ Add tag</button></div>
+                <div id="customTags" class="custom-tags"></div>
+                <div class="notice"><span>i</span><div><b>Format note</b><small>Not every container understands every custom key. MMU writes what FFmpeg supports for that format.</small></div></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-view" data-view="5">
+            <div class="page-heading">
+              <span class="kicker">6</span>
+              <h1>Review & save</h1>
+              <p>Review your configured details before you save. Changes cannot be undone once the file has been written.</p>
+            </div>
+            <div class="review-grid">
+              <div class="review-card">
+                <div class="review-cover" id="reviewCover"><span>♫</span></div>
+                <div class="review-main">
+                  <span class="kicker">FINAL TAGS</span>
+                  <h2 id="reviewTitle">Untitled song</h2>
+                  <p id="reviewArtist">Unknown artist</p>
+                  <div class="review-chips" id="reviewChips"></div>
+                </div>
+              </div>
+              <div class="save-card">
+                <h3>Where should MMU save it?</h3>
+                <label class="save-option active"><input type="radio" name="saveMode" value="copy" checked><span><b>Save a tagged copy</b><small>Keeps the original file untouched. Recommended.</small></span></label>
+                <label class="save-option"><input type="radio" name="saveMode" value="replace"><span><b>Replace the original</b><small>Writes the new tags back to the same file.</small></span></label>
+                <div class="notice warning"><span>!</span><div><b>Audio is stream-copied</b><small>MMU edits container metadata; it does not transcode the audio stream.</small></div></div>
+              </div>
+            </div>
+            <div id="saveResult" class="save-result hidden"></div>
+          </section>
+        </div>
+
+        <footer class="wizard-footer">
+          <button id="backBtn" class="btn secondary" disabled>← Back</button>
+          <div class="footer-status" id="footerStatus">Choose a music file to begin.</div>
+          <button id="nextBtn" class="btn primary" disabled>Next →</button>
+        </footer>
+      </main>
+    </div>
+
+    <div id="playerDock" class="player-dock hidden">
+      <div class="player-art" id="playerArt">♫</div>
+      <div class="player-copy"><b id="playerTitle">Preview</b><small id="playerArtist">Quiet preview · 16%</small></div>
+      <button id="playPauseBtn" class="player-btn" aria-label="Play or pause">❚❚</button>
+      <div class="timeline"><span id="currentTime">0:00</span><input id="seek" type="range" min="0" max="1000" value="0"><span id="durationTime">0:00</span></div>
+      <div class="volume-wrap"><span>♪</span><input id="volume" type="range" min="0" max="100" value="16"><b id="volumeLabel">16%</b></div>
+      <audio id="audio"></audio>
+    </div>
+
+    <footer id="statusbar"><span id="statusLeft">MMU ready</span><span class="status-spacer"></span><span id="versionText">Music Metadata Utility</span></footer>
+
+    <div id="playlistOverlay" class="playlist-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="playlistHeading">
+      <section class="playlist-panel">
+        <header class="playlist-panel-header">
+          <div>
+            <span class="kicker">M3U8 PLAYLIST</span>
+            <h2 id="playlistHeading">Create Playlist</h2>
+            <p>Select multiple songs, put them in the order you want, then save a UTF-8 <b>.m3u8</b> playlist.</p>
+          </div>
+          <button id="closePlaylistBtn" class="playlist-close" aria-label="Close playlist creator">×</button>
+        </header>
+
+        <div class="playlist-panel-body">
+          <div class="playlist-name-row">
+            <div class="field">
+              <label for="playlistName">Playlist name</label>
+              <input id="playlistName" autocomplete="off" value="My Playlist" placeholder="My Playlist" />
+            </div>
+            <div class="playlist-actions-top">
+              <button id="addPlaylistFilesBtn" class="btn primary">+ Select music files</button>
+              <button id="clearPlaylistBtn" class="btn secondary" disabled>Clear</button>
+            </div>
+          </div>
+
+          <div class="playlist-summary-row">
+            <div><b id="playlistTrackCount">0 songs</b><small id="playlistDuration">0:00 total</small></div>
+            <span class="playlist-format-pill">UTF-8 · M3U8</span>
+          </div>
+
+          <div id="playlistList" class="playlist-list">
+            <div class="playlist-empty">
+              <div class="playlist-empty-icon">♫</div>
+              <b>No songs selected yet</b>
+              <span>Choose “Select music files” and pick as many tracks as you want.</span>
+            </div>
+          </div>
+
+          <div class="playlist-path-card">
+            <div class="playlist-path-heading">
+              <div><b>Song paths in playlist</b><small>Choose how MMU should point the player to each selected audio file.</small></div>
+            </div>
+            <div class="playlist-path-modes" role="radiogroup" aria-label="Playlist song path mode">
+              <label class="playlist-path-mode">
+                <input type="radio" name="playlistPathMode" value="relative" checked>
+                <span><b>Relative</b><small>Best when the playlist stays near the music.</small></span>
+              </label>
+              <label class="playlist-path-mode">
+                <input type="radio" name="playlistPathMode" value="device">
+                <span><b>Rockbox / device</b><small>Use a fixed path on the music player, such as /Music.</small></span>
+              </label>
+              <label class="playlist-path-mode">
+                <input type="radio" name="playlistPathMode" value="absolute">
+                <span><b>Full computer path</b><small>Uses the selected file's full path on this computer.</small></span>
+              </label>
+            </div>
+            <div id="playlistDevicePathRow" class="playlist-device-path hidden">
+              <label for="playlistDevicePath">Songs folder on Rockbox / device</label>
+              <input id="playlistDevicePath" autocomplete="off" spellcheck="false" value="/Music" placeholder="/Music" />
+              <small>MMU appends each selected filename to this folder. Example: <b>/Music</b> + <b>Song.mp3</b> → <b>/Music/Song.mp3</b>. The .m3u8 can be saved anywhere on the device.</small>
+            </div>
+          </div>
+
+          <div id="playlistResult" class="save-result hidden"></div>
+        </div>
+
+        <footer class="playlist-panel-footer">
+          <span id="playlistStatus">Select one or more songs to make a playlist.</span>
+          <div>
+            <button id="cancelPlaylistBtn" class="btn secondary">Cancel</button>
+            <button id="savePlaylistBtn" class="btn primary" disabled>Save Playlist</button>
+          </div>
+        </footer>
+      </section>
+    </div>
+
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
